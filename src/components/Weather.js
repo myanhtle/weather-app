@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
+import { nanoid } from "nanoid";
 
 export default function Weather({ weather }) {
   const [weekForcast, setWeekForcast] = useState([]);
   const [hourForcast, setHourForcast] = useState([]);
   const [isDaily, setIsDaily] = useState(true);
+  const iconCodes = [
+    ["2", "11d"],
+    ["3", "09d"],
+    ["5", "10d"],
+    ["6", "13d"],
+    ["7", "50d"],
+    ["8", "03d"],
+    ["800", "01d"],
+  ];
+  const codeMap = new Map(iconCodes);
 
   useEffect(() => {
     dailyWeather(weather.daily);
@@ -32,6 +43,7 @@ export default function Weather({ weather }) {
     const dailyForcast = days.map((d) => ({
       date: unixToDate(d.dt),
       temp: d.temp.day,
+      id: d.weather[0].id.toString(),
     }));
     setWeekForcast(dailyForcast);
   };
@@ -40,6 +52,7 @@ export default function Weather({ weather }) {
     const hourlyForcast = hours.map((h) => ({
       time: unixToHour(h.dt),
       temp: h.temp,
+      id: h.weather[0].id.toString(),
     }));
     setHourForcast(hourlyForcast);
   };
@@ -52,12 +65,27 @@ export default function Weather({ weather }) {
           flexDirection: "row",
           flexWrap: "wrap",
           alignItems: "center",
-          margin: "10px",
+          margin: "20px",
+          borderStyle: "solid",
         }}
       >
         {hourForcast.map((h) => (
           <div style={{ margin: "20px" }}>
             <h3>{h.time}</h3>
+            {h.id === "800" ? (
+              <img
+                src={`http://openweathermap.org/img/wn/${codeMap.get(
+                  "800"
+                )}@2x.png`}
+                key={nanoid()}
+              />
+            ) : (
+              <img
+                src={`http://openweathermap.org/img/wn/${codeMap.get(
+                  h.id.substring(0, 1)
+                )}@2x.png`}
+              />
+            )}
             <p>{h.temp}°F</p>
           </div>
         ))}
@@ -67,11 +95,33 @@ export default function Weather({ weather }) {
 
   const weeklyForcast = (
     <div>
-      <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          display: "inline-flex",
+          flexDirection: "row",
+          borderStyle: "solid",
+          margin: "20px",
+        }}
+      >
         {weekForcast.map((d) => (
-          <div>
+          <div style={{ padding: "20px", borderStyle: "solid" }}>
             <h3>{d.date}</h3>
+            {d.id === "800" ? (
+              <img
+                src={`http://openweathermap.org/img/wn/${codeMap.get(
+                  "800"
+                )}@2x.png`}
+                key={nanoid()}
+              />
+            ) : (
+              <img
+                src={`http://openweathermap.org/img/wn/${codeMap.get(
+                  d.id.substring(0, 1)
+                )}@2x.png`}
+              />
+            )}
             <p>{d.temp}°F</p>
+            {}
           </div>
         ))}
       </div>
